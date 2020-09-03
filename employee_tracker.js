@@ -109,6 +109,9 @@ function viewDept() {
     message: "What department would you like to view?"
   })
   .then(function(answer) {
-
+    var query = "SELECT * FROM department";
+    connection.query(query, { function (err, res) {
+      
+    }
   })
 }
