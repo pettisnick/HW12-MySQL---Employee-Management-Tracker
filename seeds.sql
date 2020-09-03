@@ -1,5 +1,7 @@
+/* Seeds for SQL table. We haven't discussed this type of file yet */
 USE employee_trackerDB;
 
+-- Table 1
 -- Department data
 INSERT INTO department (id, name) 
 values (1, 'Accounting');
@@ -10,6 +12,7 @@ values (3, 'HR');
 INSERT INTO department (id, name) 
 values (4, 'Markteting');
 
+-- Table 2
 -- Role data
 INSERT INTO role (id, title, salary, department_id) 
 values (1, 'Market_Research', 65000, 4);
@@ -20,6 +23,7 @@ values (3,'Sales_Manager', 85000, 2);
 INSERT INTO role (title, salary, department_id)
 values (4, 'HR-Specialist', 60000, 3);
 
+-- Table 3
 -- Employee data
 INSERT INTO employee (id, first_name, last_name, role_id, manager_id) 
 values (1, 'Dave', 'Smith', 1, 1);

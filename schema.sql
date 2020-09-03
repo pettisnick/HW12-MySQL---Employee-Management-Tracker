@@ -1,9 +1,11 @@
+/* Schema for SQL database/table. We haven't discussed this type of file yet */
 DROP DATABASE IF EXISTS employee_trackerDB;
 
+/* Create database */
 CREATE DATABASE employee_trackerDB;
-
 USE employee_trackerDB;
 
+/* /* Create new table with a primary key that auto-increments, and a text field */
 CREATE TABLE department (
   id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(30) NULL,
