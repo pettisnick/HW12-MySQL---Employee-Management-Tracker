@@ -1,7 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const cTable = require("console.table");
-const { allowedNodeEnvironmentFlags } = require("process");
+//const cTable = require("console.table");
+//const { allowedNodeEnvironmentFlags } = require("process");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -104,6 +104,7 @@ function runSearch() {
 //View Departments
 function viewDept() {
   var query = "SELECT * FROM department";
+  //Sending new query to mysql
   connection.query(query, { department: answer.department }, function (err, res) {
     for (var i = 0; i < res.length; i++) {
       console.log("ID: " + res[i].id + " || Name: " + res[i].name);
@@ -112,21 +113,6 @@ function viewDept() {
   });
 }
 
-/*function addDept() {
-  inquirer
-    .prompt({
-        name: "addDepartment",
-        type: "input",
-        message: "What is the name of the new department?",
-      })
-    .then(function (answer) {
-      var query = "INSERT INTO department addDept();
-      }
-      else {
-        connection.end();
-      }
-    });
-*/
 
 //View Roles
 function viewRole() {
@@ -152,5 +138,91 @@ function viewEmployee() {
     runSearch();
   });
 };
+
+//Add New Department
+function addDept() {
+  inquirer
+    .prompt({
+        name: "addDepartment",
+        type: "input",
+        message: "What is the name of the new department?",
+      })
+    .then(function (answer) {
+      connection.query = "INSERT INTO department (name) VALUES (?)", [res.addDepartment], function(err, res) {
+        if (err) throw err;
+        console.log(`${res.addDepartment} has been inserted into as a new department. \n`);
+        runSearch();
+      };
+    });
+  }
+
+  //Add New Role
+  function addRole() {
+    inquirer
+    .prompt([
+    {
+      name: "newTitle",
+      type: "input",
+      message: "Enter the new title."
+    },
+    {
+      name: "salary",
+      type: "number",
+      message: "What is the salary?"
+    },
+    {
+      name: "deptID",
+      type: "number",
+      message: "What is the department ID?"
+    }
+  ])
+  .then(function (answer) {
+    connection.query = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)", [res.newTitle, res.salary, res.deptID], function (err, res) {
+      if (err) throw err;
+      console.log(`${res}`)
+      
+    }
+    
+  })
+  }
+
+  //Add New Employee
+  function addEmployee() {
+    inquirer
+    .prompt([
+    {
+      name: "firstName",
+      type: "input",
+      message: "Enter your first name."
+    },
+    {
+      name: "lastName",
+      type: "input",
+      message: "Enter your last name."
+    },
+    {
+      name: "roleID",
+      type: "number",
+      message: "What is the role ID?"
+    },
+    {
+      name: "managerID",
+      type: "number",
+      message: "What is the manager ID?"
+    }
+  ])
+  .then(function (answer) {
+    connection.query = "INSERT INTO employee (first name, last name, role ID, manager ID) VALUES (?, ?, ?)", [res.firstName, res.lastName, res.roleID, res.managerID], function (err, res) {
+      if (err) throw err;
+      console.log(`${res}`)
+      
+    }
+    
+  })
+  }
+
+    
+    
+    
 
 
