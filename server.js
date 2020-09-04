@@ -1,7 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-//const cTable = require("console.table");
-//const { allowedNodeEnvironmentFlags } = require("process");
+const cTable = require("console.table");
+
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -19,10 +19,12 @@ const connection = mysql.createConnection({
 
 connection.connect(function (err) {
   if (err) throw err;
-  runSearch();
+  console.log("employee_trackerDB is connected");
+  runApp();
 });
 
-function runSearch() {
+//Start Function
+function runApp() {
   inquirer
     .prompt({
       name: "action",
@@ -98,48 +100,44 @@ function runSearch() {
         case "View Total Budget of a Department":
           budget();
           break;
+
+        case "Exit":
+          connection.end();
+          break;
       }
     });
 }
 
 //View Departments
 function viewDept() {
-  var query = "SELECT * FROM department";
-  //Sending new query to mysql
-  connection.query(query, { department: answer.department }, function (err, res) {
+  console.log("viewing all the departments from database");
+  connection.query("SELECT * FROM department", function (err, res) {
     if (err) throw err;
-    for (var i = 0; i < res.length; i++) {
-      console.log("Name: " + res[i].name);
-    }
-    runSearch();
+    //creates table of results in console view
+    console.table(res);
+    runApp();
   });
 }
 
 
 //View Roles
 function viewRole() {
-  var query = "SELECT * FROM role";
-  connection.query(query, { role: answer.role }, function (err, res) {
+  console.log("viewing all roles from database");
+  connection.query("SELECT * FROM role", function (err, res) {
     if (err) throw err;
-    console.log('Roles:');
-    for (var i = 0; i < res.length; i++) {
-      console.log("Title: " + res[i].title + " || Salary: " + res[i].salary + " || Department ID: " + res[i].department_id);
-    }
-    runSearch();
+    console.table(res);
+    runApp();
   });
 };
 
 
 //View Employees
 function viewEmployee() {
-  var query = "SELECT * FROM employee";
-  connection.query(query, { employee: answer.employee }, function (err, res) {
+  console.log("viewing all employees from database");
+  connection.query("SELECT * FROM employee", function (err, res) {
     if (err) throw err;
-    console.log('Employees:');
-    for (var i = 0; i < res.length; i++) {
-      console.log("First Name: " + res[i].first_name + " || Last Name: " + res[i].last_name + " || Role ID: " + res[i].role_id + " || Manager ID: " + res[i].manager_id);
-    }
-    runSearch();
+    console.log(res);
+    runApp();
   });
 };
 
@@ -151,21 +149,21 @@ function addDept() {
       type: "input",
       message: "What is the name of the new department?",
     })
-    .then(function (res) {
-      connection.query = "INSERT INTO department name VALUES ?", [res.addDepartment], function (err, res) {
+    .then(function (answer) {
+      connection.query("INSERT INTO department (name) VALUES (?)", answer.addDepartment, function (err, res) {
         if (err) throw err;
-        console.log(`${res.addDepartment} has been inserted into as a new department. \n`);
-        runSearch();
-      };
+        console.log("A new department has been added!");
+        runApp();
+      });
     });
 }
 
 //Add New Role
-function addRole() {
+/*function addRole() {
   inquirer
     .prompt([
       {
-        name: "newTitle",
+        name: "title",
         type: "input",
         message: "Enter the new title."
       },
@@ -180,12 +178,52 @@ function addRole() {
         message: "What is the department ID?"
       }
     ])
-    .then(function (res) {
-      connection.query("INSERT INTO role title, salary, department_id VALUES ?, ?, ?", [res.newTitle, res.salary, res.deptID], function (err, res) {
-        if (err) throw err;
-        console.log(`${res}`)
+    .then(function (answer) {
+      connection.query("INSERT INTO role SET ?", {
+        title: answer.title,
+        salary: answer.salary,
+        department_id: answer.deptID,
+      },
+      console.log([answer.title, answer.salary, answer.deptID]);
+      function (err) {
+        runApp();
       });
     });
+}
+*/
+function addRole() {
+  const departments = [];
+  connection.query("SELECT name FROM department", (err, result) => {
+      if (err) throw err;
+      result.forEach(dep => {
+          departments.push(dep.name);
+      });
+      inquirer
+          .prompt([
+              {
+                  name: "title",
+                  type: "input",
+                  message: "Enter the title of the new role?"
+              },
+              {
+                  name: "salary",
+                  type: "input",
+                  message: "Enter the role salary?"
+              },
+              {
+                  name: "deptID",
+                  type: "list",
+                  message: "What is the role department ID?",
+                  choices: departments
+              }
+          ])
+          .then(answer => {
+              function departmentID(answer) {
+              return(answer);
+              }
+              runApp();
+          });
+  });
 }
 
 //Add New Employee
@@ -214,14 +252,64 @@ function addEmployee() {
       }
     ])
     .then(function (res) {
-      //console.log(answer) would show me the object of what I typed in for firstname, ...
-      var query = "INSERT INTO employee first_name, last_name, role_id, manager_id VALUES ?, ?, ?, ?";
-      connection.query(query[res.firstName, res.lastName, res.roleID, res.managerID], function (err, res) {
+      var query
+      connection.query("INSERT INTO employee first_name, last_name, role_id, manager_id VALUES ?, ?, ?, ?", [res.firstName, res.lastName, res.roleID, res.managerID], function (err, res) {
         if (err) throw err;
-        console.log(`${res}`)
+        runSearch();
       });
     });
   }
+
+  //Update Employee Roles
+  function updEmployRol() {
+    inquirer
+    .prompt([
+      {
+        name: "title",
+        type: "input",
+        message: "Enter the new title."
+      },
+      {
+        name: "salary",
+        type: "number",
+        message: "What is the salary?"
+      },
+      {
+        name: "deptID",
+        type: "number",
+        message: "What is the department ID?"
+      }
+    ])
+    .then(function (res) {
+    //var query1 = "UPDATE role title, salary, department_id SET ?, ?, ?";
+    connection.query("UPDATE role title, salary, department_id SET ?, ?, ?", [res.title, res.salary, res.deptID], function (err, res) {
+      if (err) throw err;
+      console.log(`${res}`);
+      runSearch();
+    });
+  });
+}
+
+//Delete Department
+function deleteDept() {
+  inquirer
+  .prompt([
+    {
+      name: "department",
+      type: "rawlist",
+      message: "Which department would you like to delete?",
+      choices: names
+    }
+  ])
+  .then(function (res) {
+    var sql = "DELETE FROM department WHERE name = ?";
+    connection.query(sql, [res.department], function (err, res) {
+      if (err) throw err;
+      console.log(`${res}`);
+      runSearch();
+    });
+  });
+}
 
 
 
