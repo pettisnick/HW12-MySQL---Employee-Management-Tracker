@@ -292,8 +292,8 @@ function deleteDept() {
       var sql = "DELETE FROM department WHERE name = ?";
       connection.query(sql, [res.department], function (err, res) {
         if (err) throw err;
-        console.log(`${res}`);
-        runSearch();
+        console.log(res);
+        runApp();
       });
     });
 }
